@@ -22,8 +22,9 @@ import numpy as np
 def get_detected_img(model, img_array,  score_threshold=0.3, is_print=True):
   draw_img = img_array.copy()
   bbox_color=(0, 255, 0)
-  text_color=(0, 0, 255)
+  text_color=(0, 0, 0)
   dog_true = 0
+  count = 0
   results = inference_detector(model, img_array)
   for result_ind, result in enumerate(results):
     if len(result) == 0:
@@ -36,14 +37,17 @@ def get_detected_img(model, img_array,  score_threshold=0.3, is_print=True):
       top = int(result_filtered[i, 1])
       right = int(result_filtered[i, 2])
       bottom = int(result_filtered[i, 3])
-      caption = "{}: {:.4f}".format(labels_to_names_seq[result_ind], result_filtered[i, 4])
-      cv2.rectangle(draw_img, (left, top), (right, bottom), color=bbox_color, thickness=2)
-      cv2.putText(draw_img, caption, (int(left), int(top - 7)), cv2.FONT_HERSHEY_SIMPLEX, 0.37, text_color, 1)
       if is_print:
-        if labels_to_names_seq[result_ind] == "dog":
-            dog_true = 1
-  
+        if labels_to_names_seq[result_ind] == "dog" and count == 0:
+          caption = "{}: {:.2f}".format(labels_to_names_seq[result_ind], result_filtered[i, 4])
+          cv2.rectangle(draw_img, (left, top), (right, bottom), color=bbox_color, thickness=10)
+          cv2.putText(draw_img, caption, (int(left + 10), int(top + 60)), cv2.FONT_HERSHEY_SIMPLEX, 2, text_color, 5)
+          dog_true = 1
+          count = 1
+
   return draw_img , dog_true
+
+import matplotlib.pyplot as plt
 
 img_arr = cv2.imread('./demo.jpg')
 detected_img , dog_result = get_detected_img(model, img_arr,  score_threshold=0.3, is_print=True)
@@ -52,3 +56,9 @@ if dog_result==1:
     print("dog")
 else:
     print("not_dog")
+
+detected_img = cv2.cvtColor(detected_img, cv2.COLOR_BGR2RGB)
+
+plt.figure(figsize=(12, 12))
+plt.imshow(detected_img)
+plt.savefig('result.jpg')

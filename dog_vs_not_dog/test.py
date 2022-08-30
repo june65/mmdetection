@@ -7,6 +7,12 @@ checkpoint_file = '.././faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
 model = init_detector(config_file, checkpoint_file, device='cuda:0')
 
 import cv2
+import matplotlib.pyplot as plt
+
+img = './demo.jpg'
+results = inference_detector(model, img)
+
+
 
 labels_to_names_seq = {0:'person',1:'bicycle',2:'car',3:'motorbike',4:'aeroplane',5:'bus',6:'train',7:'truck',8:'boat',9:'traffic light',10:'fire hydrant',
                         11:'stop sign',12:'parking meter',13:'bench',14:'bird',15:'cat',16:'dog',17:'horse',18:'sheep',19:'cow',20:'elephant',
@@ -43,12 +49,32 @@ def get_detected_img(model, img_array,  score_threshold=0.3, is_print=True):
         if labels_to_names_seq[result_ind] == "dog":
             dog_true = 1
   
-  return draw_img , dog_true
+  return draw_img,dog_true
 
-img_arr = cv2.imread('./demo.jpg')
-detected_img , dog_result = get_detected_img(model, img_arr,  score_threshold=0.3, is_print=True)
-    
-if dog_result==1:
-    print("dog")
-else:
-    print("not_dog")
+import matplotlib.pyplot as plt
+
+import glob
+
+data_path = './image2'
+
+dog_images = glob.glob(data_path+'/*')
+
+i=0
+j=0
+
+for image_1 in dog_images:
+    print(i)
+    img_arr = cv2.imread(image_1)
+    detected_img,dog_result = get_detected_img(model, img_arr,  score_threshold=0.3, is_print=True)
+    print(dog_result)
+    if dog_result==1:
+        j+=1
+    i=i+1
+
+print(j)
+print(i)
+
+'''detected_img = cv2.cvtColor(detected_img, cv2.COLOR_BGR2RGB)
+
+plt.figure(figsize=(12, 12))
+plt.imshow(detected_img)'''
